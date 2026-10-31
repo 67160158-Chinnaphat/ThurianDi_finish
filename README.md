@@ -1,212 +1,207 @@
-# 🌿 ทุเรียนดี - AI & Community Platform สำหรับชาวสวนทุเรียน
+# 🌿 สรุปเทคโนโลยีทั้งหมด: ทุเรียนดี
 
-> โปรเจกต์ Full-Stack พัฒนาเว็บแอปพลิเคชันผู้ช่วยชาวสวนทุเรียน ที่รวมผู้ช่วย AI "หมอนทอง" ร้านอะไหล่และเครื่องมือเกษตร และชุมชนรีวิวไว้ในที่เดียว สร้างด้วย FastAPI และ PostgreSQL มีระบบสิทธิ์ 3 ระดับ (ผู้ใช้ / ผู้ขาย / แอดมิน) และรันทั้งระบบได้ด้วยคำสั่งเดียวผ่าน Docker Compose
-
----
-
-## 🎯 งานของเราคืองานอะไร? (Project Overview & Core Scope)
-**ทุเรียนดี** ไม่ใช่เว็บบอร์ดทั่วไป แต่เป็นแพลตฟอร์มที่ออกแบบมาเพื่อแก้ปัญหาของชาวสวนมือใหม่ที่เจออุปกรณ์สวนเสียแล้วหาสาเหตุไม่ได้ ไม่รู้ว่าอะไหล่ชิ้นไหนคืออะไร และไม่กล้าไว้ใจราคาที่ช่างบอก งานของเราครอบคลุม 3 ส่วนหลัก:
-
-1. **Role-Based Frontend (หน้าบ้านแยกตามสิทธิ์):**
-   - บังคับล็อกอินก่อนเข้าเว็บทุกครั้ง หลังล็อกอินระบบจะส่งผู้ใช้ไปยังหน้าของสิทธิ์ตัวเองอัตโนมัติ
-   - **ผู้ใช้ทั่วไป** (`user.html`): หมอนทอง AI (วิเคราะห์จากข้อความ/รูป), ชุมชนและรีวิว, เทียบอะไหล่เกษตร พร้อมแผนที่ร้านค้าใกล้แปลง, แดชบอร์ดสวน, แบ่งปันข้อมูล
-   - **ผู้ขาย** (`seller.html`): ปักหมุดตำแหน่งร้านด้วย GPS, เพิ่ม/แก้/ลบสินค้าและสต๊อก, ดูรีวิวสินค้าของร้านตัวเอง
-   - **แอดมิน** (`admin.html`): สร้างบัญชีผู้ขาย, เปลี่ยนสิทธิ์ผู้ใช้, ค้นหาผู้ใช้, ดูภาพรวมระบบ (จำนวนผู้ใช้ ผู้ขาย ร้านค้า สินค้า)
-   - ทุกหน้าตรวจสิทธิ์กับเซิร์ฟเวอร์ผ่าน `/me` ตอนโหลด ไม่เชื่อค่าที่เก็บในเครื่องอย่างเดียว
-
-2. **Robust Backend REST API (หลังบ้าน):**
-   - พัฒนาด้วย **FastAPI** พร้อม **Pydantic** ตรวจสอบความถูกต้องของข้อมูลตั้งแต่วินาทีแรกที่ส่งเข้ามา
-   - ยืนยันตัวตนด้วย **JWT** ที่มีรหัส `jti` และตาราง `revoked_tokens` ทำให้ `/logout` ยกเลิก token ฝั่งเซิร์ฟเวอร์ได้จริง ไม่ใช่แค่ลบจากเบราว์เซอร์
-   - ควบคุมสิทธิ์ด้วย `require_role()` ทุก endpoint ที่ต้องจำกัดสิทธิ์ และ endpoint ข้อมูลทั้งหมดต้องล็อกอินก่อนเรียก
-   - มี **10 endpoint หลัก** ตามโจทย์ Authentication / User Management และ endpoint เสริมสำหรับแอดมิน ร้านค้า สินค้า รีวิว ชุมชน และหมอนทอง AI
-
-3. **Containerized Architecture & Orchestration (ระบบจัดเก็บและจำลองสภาพแวดล้อม):**
-   - ฐานข้อมูล **PostgreSQL 15** เก็บข้อมูลผู้ใช้ ร้านค้า สินค้า รีวิว โพสต์ คอมเมนต์ และ token ที่ถูกยกเลิก
-   - ห่อหุ้มแอปด้วย **Dockerfile** และควบคุม PostgreSQL, FastAPI และ pgAdmin ให้ทำงานร่วมกันผ่าน **Docker Compose** รันได้เหมือนกันทุกเครื่องด้วยคำสั่งเดียว
+เว็บแอปผู้ช่วยชาวสวนทุเรียน รวม AI วินิจฉัยอุปกรณ์สวน (หมอนทอง) ร้านอะไหล่บนแผนที่ และชุมชนรีวิว มีสิทธิ์ผู้ใช้ 3 ระดับ รันทั้งระบบด้วย Docker Compose
 
 ---
 
-## 💡 ทำไมถึงต้องทำโปรเจกต์นี้? (Motivation & Objective)
-* **แก้ปัญหาจริงของชาวสวนมือใหม่:** เมื่ออุปกรณ์อย่างปั๊มน้ำ เครื่องพ่นยา หรือเครื่องตัดหญ้าเสีย มือใหม่มักหาสาเหตุเองไม่ได้ ต้องพึ่งช่างและกลัวถูกเอาเปรียบ อีกทั้งยังหาอะไหล่ที่ตรงรุ่นและเปรียบเทียบราคาได้ยาก
-* **รวมข้อมูลที่กระจัดกระจายไว้ในที่เดียว:** แทนที่จะถามต่อ ๆ กันในกลุ่มออนไลน์ ผู้ใช้สามารถแจ้งปัญหากับผู้ช่วย AI ดูร้านอะไหล่ใกล้ตัว และอ่านรีวิวจากผู้ใช้จริงก่อนตัดสินใจซื้อได้ในเว็บเดียว
-* **ยกระดับจากเว็บ CRUD พื้นฐาน:** ผนวกระบบสิทธิ์หลายระดับ การยกเลิก token ฝั่งเซิร์ฟเวอร์ ข้อมูลพิกัดร้านค้า และผู้ช่วย AI เข้ากับฐานข้อมูลจริง เพื่อให้ใกล้เคียงระบบที่ใช้งานได้จริงมากที่สุด
+## 1. ภาพรวมสถาปัตยกรรม
+
+```
+Browser (HTML/CSS/Vanilla JS, Chart.js, Leaflet)
+        │  fetch + JWT (Authorization: Bearer)
+        ▼
+FastAPI (Python 3.11, port 8000)  ──►  PostgreSQL 15 (port 5432)
+        │                                   ▲
+        │ HTTP /api/chat                    │
+        ▼                                   │
+Ollama บนเครื่องโฮสต์ (qwen3-vl)       pgAdmin 4 (port 8080)
+```
+
+- FastAPI ตัวเดียวทำทั้ง REST API และ serve ไฟล์หน้าเว็บ (same-origin จึงไม่ติดปัญหา CORS ในการใช้งานปกติ)
+- Docker Compose ประกอบด้วย 3 service: `postgres`, `fastapi_app`, `pgadmin`
+- Ollama ไม่อยู่ใน Docker รันบนเครื่องโฮสต์ แล้ว FastAPI เรียกผ่าน `host.docker.internal:11434`
 
 ---
 
-## ⚖️ ทำไมถึงแตกต่าง? (Key Differentiators & Technical Choices)
-* **ระบบสิทธิ์ 3 ระดับที่กันทั้งหน้าเว็บและ API:** นอกจากหน้าเว็บจะส่งผู้ใช้ไปหน้าของสิทธิ์ตัวเองแล้ว backend ยังตรวจสิทธิ์ซ้ำทุกครั้ง ผู้ขายสมัครเองไม่ได้ ต้องให้แอดมินสร้างบัญชีให้ และแอดมินคนแรกสร้างผ่านสคริปต์ `seed_admin.py`
-* **Logout ที่ยกเลิก token จริง:** ใช้ `jti` และตาราง `revoked_tokens` ทำให้ token ที่ออกจากระบบแล้วใช้ต่อไม่ได้อีก
-* **ร้านค้าพร้อมพิกัดและสต๊อก แสดงบนแผนที่จริง:** ผู้ขายปักหมุดร้านและจัดการจำนวนสินค้าเอง ผู้ใช้เห็นร้านบนแผนที่ (Leaflet + OpenStreetMap) ค้นหาร้านหรือสินค้า กรองร้านที่ใกล้ตัวหรือมีสินค้าในสต๊อก และกดนำทางได้
-* **ผู้ช่วย AI รันในเครื่อง:** หมอนทอง AI เรียกโมเดลผ่าน Ollama ภายในเครื่องของผู้ใช้เอง ไม่ส่งรูปและข้อความออกไปบริการภายนอก มีการลองใหม่อัตโนมัติและแสดงผลสำรองเมื่อโมเดลตอบผิดรูปแบบ
-* **ป้องกัน XSS ในหน้าแอดมินและผู้ขาย:** ข้อมูลที่ผู้ใช้กรอก (ชื่อผู้ใช้ อีเมล ชื่อสินค้า คอมเมนต์รีวิว) ถูก escape ก่อนแสดงผลทุกจุด
-* **รันได้เหมือนกันทุกเครื่อง:** Docker Compose ทำให้ API ฐานข้อมูล และ pgAdmin คุยกันผ่านชื่อ service โดยไม่ต้องตั้งค่า IP และไม่ชนกับไลบรารีในเครื่อง
+## 2. Backend
+
+| หัวข้อ | เทคโนโลยี / รายละเอียด |
+|---|---|
+| ภาษา / Framework | Python 3.11, **FastAPI** (app version 4.0.0), Uvicorn |
+| ตรวจสอบข้อมูล | **Pydantic** (`Field`, `EmailStr` ผ่าน `email-validator`) |
+| ORM | **SQLAlchemy** (declarative, `sessionmaker`, `pool_pre_ping=True`) |
+| DB driver | `psycopg2-binary` |
+| รับไฟล์ | `python-multipart` (อัปโหลดรูปไป `/diagnose`) |
+| งาน blocking | `run_in_threadpool` ครอบการเรียก Ollama ไม่ให้บล็อก event loop |
+| Static files | route กำหนดเองใน `main.py` ส่ง `login.html`, `user.html`, `seller.html`, `admin.html`, `common.js`, `app.js`, `style.css` |
+| Health check | `GET /api/health` |
+| Auto-migration | ตอนเริ่มระบบรัน `ALTER TABLE users ADD COLUMN IF NOT EXISTS role ...` |
+
+### Dependencies (`requirements.txt`)
+`fastapi`, `uvicorn`, `sqlalchemy`, `psycopg2-binary`, `passlib[bcrypt]`, `bcrypt==4.0.1`, `python-jose[cryptography]`, `python-multipart`, `email-validator`
 
 ---
 
-## 🛠️ Tech Stack รายละเอียด
-* **Frontend:** HTML5, CSS, JavaScript (Vanilla), Chart.js, Leaflet + OpenStreetMap (แผนที่), Google Fonts
-* **Backend API:** Python, FastAPI, Pydantic, SQLAlchemy, Psycopg2
-* **Authentication:** JWT (python-jose), bcrypt (passlib)
-* **Database:** PostgreSQL 15
-* **Infrastructure & DevOps:** Docker, Docker Compose, pgAdmin 4
-* **AI:** Ollama รันบนเครื่องโฮสต์ (โมเดล vision-language เช่น `qwen3-vl`) FastAPI เรียกผ่าน `host.docker.internal`
+## 3. ระบบยืนยันตัวตนและสิทธิ์ (Authentication & Authorization)
+
+- **JWT** ด้วย `python-jose`, อัลกอริทึม **HS256**, อายุ token 24 ชั่วโมง
+- payload มี `user_id`, `username`, `role`, `jti`, `iat`, `exp`
+- **Logout ที่ยกเลิก token จริง:** เก็บ `jti` ลงตาราง `revoked_tokens` และทุก request ตรวจว่า `jti` ถูกยกเลิกหรือไม่
+- เปลี่ยนรหัสผ่านแล้ว token ปัจจุบันถูกยกเลิกทันที
+- **เข้ารหัสผ่าน:** bcrypt ผ่าน `passlib.CryptContext`
+- **Role-based access control:** `require_role(...)` เป็น dependency factory (admin ผ่านได้ทุก endpoint)
+  - `user` ผู้ใช้ทั่วไป
+  - `seller` ผู้ขาย (สมัครเองไม่ได้ ต้องให้แอดมินสร้างผ่าน `/admin/sellers`)
+  - `admin` ผู้ดูแลระบบ (คนแรกสร้างด้วย `seed_admin.py`)
+- `/register` ให้ role `user` เสมอ ไม่รับค่า role จาก client
+- `ensure_self()` ให้แก้/ลบได้เฉพาะบัญชีตัวเอง ยกเว้นแอดมิน
+- กันลบแอดมินคนสุดท้าย และกันแอดมินเปลี่ยนสิทธิ์ของตัวเอง
+- ตรวจ username ซ้ำและอีเมลซ้ำ (เทียบแบบ lowercase) พร้อมดัก `IntegrityError`
+- ฝั่ง client ตรวจสิทธิ์ซ้ำกับ `/me` ทุกครั้งที่โหลดหน้า ไม่เชื่อค่าใน localStorage อย่างเดียว
 
 ---
 
-## 📂 Project Architecture Structure
+## 4. ฐานข้อมูล (PostgreSQL 15)
 
-```
-ThurianDi/
-├── main.py                  # FastAPI รวมทุก endpoint, โมเดลฐานข้อมูล, ระบบ JWT และสิทธิ์
-├── seed_admin.py            # สคริปต์สร้างบัญชีแอดมินคนแรก
-├── seed_demo.py             # สคริปต์สร้างข้อมูลตัวอย่าง (ร้านค้าพร้อมพิกัด สินค้า รีวิว) สำหรับทดสอบ
-├── requirements.txt         # Dependencies (FastAPI, SQLAlchemy, Psycopg2, python-jose, ...)
-├── Dockerfile               # สร้าง image ของ FastAPI App
-├── docker-compose.yml       # PostgreSQL + FastAPI + pgAdmin
-├── init-postgres.sql        # Schema ที่ Docker ใช้ตอนสร้างฐานข้อมูล
-├── init.sql                 # Schema MySQL เวอร์ชันเก่า (ไม่ได้ใช้กับ Docker และยังไม่มีตาราง shops/products/reviews)
-├── .env.example             # ตัวอย่างไฟล์ตั้งค่า คัดลอกเป็น .env แล้วแก้ค่า (ห้าม commit .env)
-├── .gitignore / .dockerignore
-├── login.html               # หน้าเข้าสู่ระบบและสมัครสมาชิก (ทางเข้าเดียวของเว็บ)
-├── user.html                # หน้าผู้ใช้ทั่วไป
-├── seller.html              # หน้าผู้ขาย
-├── admin.html               # หน้าแอดมิน
-├── common.js                # ฟังก์ชันที่ใช้ร่วมกัน: token, api(), requireAuth(), logout(), esc()
-├── app.js                   # โค้ดของหน้าผู้ใช้ทั่วไป
-└── style.css                # สไตล์ที่ใช้ร่วมกัน
-```
+ตารางหลัก (สร้างจาก SQLAlchemy `create_all` และ `init-postgres.sql`)
+
+| ตาราง | ข้อมูลหลัก | ความสัมพันธ์ |
+|---|---|---|
+| `users` | username, email, hashed_password, is_active, role | 1 user : 1 shop |
+| `shops` | name, address, latitude, longitude | `seller_id` UNIQUE → users (ON DELETE CASCADE) |
+| `products` | name, unit, price, stock_quantity, created/updated_at | → shops |
+| `product_reviews` | rating (1-5), comment | → products, users |
+| `posts` | title, content, category, image_url, rating | → users |
+| `comments` | content | → posts, users |
+| `revoked_tokens` | jti (UNIQUE), expires_at, revoked_at | ใช้ทำ logout จริง |
+
+- มี index ที่ username, email, category, user_id, shop_id, post_id, jti
+- ใช้ `ON DELETE CASCADE` ลบข้อมูลที่เกี่ยวข้องตามอัตโนมัติ
+- `init.sql` เป็น schema MySQL เวอร์ชันเก่า ไม่ได้ใช้กับ Docker และไม่มีตาราง shops/products/reviews
 
 ---
 
-## 🚀 วิธีการติดตั้งและรันระบบ (Quick Start)
+## 5. REST API Endpoints
 
-1. **ตรวจสอบความพร้อม:** ติดตั้ง Docker Desktop และเปิดใช้งานให้ขึ้นสถานะ *Engine running* ก่อน (รองรับ Windows WSL2, macOS และ Linux)
+**Authentication:** `POST /register`, `/login`, `/logout`, `/change-password`
 
-2. **เตรียมไฟล์ตั้งค่า:** คัดลอก `.env.example` เป็น `.env` แล้วแก้ค่า และ **เปลี่ยน `SECRET_KEY` ก่อนใช้งานจริงทุกครั้ง** สร้างค่าใหม่ได้ด้วย
+**User Management:** `GET /me`, `GET /check-username/{name}`, `GET /users` (แอดมิน, มี pagination + ค้นหา), `GET/PUT/DELETE /users/{id}`
 
-```
-python -c "import secrets; print(secrets.token_hex(32))"
-```
+**Admin:** `POST /admin/sellers`, `PATCH /admin/users/{id}/role`, `GET /admin/stats`
 
-   ถ้ายังใช้ค่าเริ่มต้น เซิร์ฟเวอร์จะพิมพ์คำเตือน `[security] WARNING` ใน log
+**Shops:** `GET /shops`, `GET/PUT /shops/mine`
 
-3. **ติดตั้งโมเดลสำหรับหมอนทอง AI:** ติดตั้ง [Ollama](https://ollama.com) บนเครื่องโฮสต์ แล้วดึงโมเดล (ดูหัวข้อ *การตั้งค่าหมอนทอง AI* ด้านล่าง)
+**Products & Reviews:** `GET /products`, `GET /products/mine`, `POST /products`, `PUT/DELETE /products/{id}`, `GET/POST /products/{id}/reviews` (1 คน 1 สินค้า ส่งซ้ำจะอัปเดตรีวิวเดิม และผู้ขายรีวิวของร้านตัวเองไม่ได้)
 
-```
-ollama pull qwen3-vl:2b-instruct
-```
+**Community:** `GET/POST /posts` (ค้นหา + กรองหมวด + limit), `DELETE /posts/{id}`, `GET/POST /posts/{id}/comments`
 
-4. **สั่งประกอบและรันระบบทั้งหมด:**
+**AI:** `POST /diagnose` (multipart: `image` + `symptom`)
 
-```
+Swagger UI อัตโนมัติที่ `/docs`
+
+---
+
+## 6. หมอนทอง AI (Ollama)
+
+- เรียก **Ollama** ผ่าน HTTP `POST /api/chat` ด้วย `urllib` (stream ปิด)
+- โมเดลเริ่มต้น `qwen3-vl:4b` (vision-language อ่านรูปได้) ตั้งค่าอื่นได้ผ่านตัวแปร `OLLAMA_*`
+- `OLLAMA_TEXT_MODEL` ใช้โมเดลที่เร็วกว่าเมื่อไม่มีรูป (ไม่บังคับ)
+- **Structured output:** รอบแรกบังคับด้วย JSON Schema (`problem`, `likely_cause`, `confidence`, `recommendations`, `youtube_keywords`)
+- **Retry:** ถ้าอ่านผลไม่ได้ ลองใหม่โหมด `json` พร้อมย้ำคีย์ที่ต้องการ
+- **Fallback:** ถ้ายังได้ข้อความธรรมดา จะแสดงเนื้อหาแบบย่อแทนการขึ้น error
+- ตัด `<think>...</think>`, ดึง JSON จากข้อความ, normalize ค่า confidence 0-100
+- ตั้ง `think: false` และ `keep_alive: 30m` ให้เร็วและไม่ต้องโหลดโมเดลซ้ำ
+- parameter: `num_ctx` 4096, `num_predict` 1000, timeout 600 วินาที (มี deadline รวมทุกรอบ)
+- log เวลา/ความเร็ว `tok/s` ของโมเดลทุกครั้ง
+- จัดการ error ละเอียด: โมเดลไม่พบ (503), Ollama ล่ม (503), timeout (504), ตอบผิดปกติ (502)
+- ตรวจไฟล์รูป: JPG/PNG/WEBP, ไม่เกิน 10 MB
+- System prompt บังคับให้ตอบไทยง่ายๆ ให้คะแนนความมั่นใจตามจริง เตือนดับเครื่อง/ถอดปลั๊กก่อน และห้ามแต่งชื่อคลิป/ลิงก์ YouTube
+- **ข้อมูลไม่ออกนอกเครื่อง:** โมเดลรันในเครื่องผู้ใช้เอง
+
+---
+
+## 7. Frontend
+
+| ส่วน | เทคโนโลยี |
+|---|---|
+| ภาษา | HTML5, CSS3, **Vanilla JavaScript** (ไม่ใช้ framework) |
+| ฟอนต์ | Google Fonts: Kanit, Sarabun, Chonburi (หน้าผู้ใช้/login), Noto Sans/Serif Thai (admin/seller) |
+| กราฟ | **Chart.js 4.4.1** (กราฟแท่งแนวโน้มโรค + โดนัทสัดส่วนโรค) |
+| แผนที่ | **Leaflet 1.9.4 + OpenStreetMap tiles** |
+| การนำทาง | ลิงก์ Google Maps Directions |
+| ตำแหน่ง | Geolocation API ของเบราว์เซอร์ |
+
+### ไฟล์หน้าเว็บ
+- `login.html` ทางเข้าเดียว (login/สมัคร) แล้วส่งไปหน้าตาม role
+- `user.html` + `app.js` หน้าผู้ใช้ 5 แท็บ: หมอนทอง AI, ชุมชนและรีวิว, เทียบอะไหล่ + แผนที่, แดชบอร์ด, แบ่งปันข้อมูล
+- `seller.html` ปักหมุดร้านด้วย GPS, จัดการสินค้า/สต๊อก/ราคา, ดูรีวิว
+- `admin.html` สถิติระบบ, สร้างบัญชีผู้ขาย, ค้นหาและเปลี่ยนสิทธิ์ผู้ใช้ (มี pagination)
+- `common.js` ใช้ร่วมกัน: `api()`, `requireAuth()`, `logout()`, `esc()`, จัดการ token
+- `style.css` ธีมเขียว-ทอง-ครีม มีลายหนามทุเรียน (`spike-divider`) และไอคอนหกเหลี่ยม (`clip-path`)
+
+### เทคนิคที่น่าสนใจ
+- **ซ่อนหน้าก่อนตรวจสิทธิ์:** คลาส `auth-pending` ซ่อน body จนกว่า `requireAuth()` ผ่าน กันหน้าวาบก่อน redirect
+- **ย่อรูปก่อนส่ง:** `createImageBitmap` + Canvas ลดเหลือ 768px เป็น JPEG 0.85
+- **ป้องกัน XSS:** escape ข้อมูลผู้ใช้ก่อนใส่ `innerHTML` (`esc()`, `escapeHtml()`) และ popup แผนที่สร้างด้วย DOM + `textContent`
+- **ค้นหาแบบ debounce** ในชุมชนและแผนที่
+- **แผนที่:** คำนวณระยะทางด้วยสูตร Haversine, กรอง "ใกล้ฉัน" (10 กม.) และ "มีสินค้าในสต๊อก", เรียงร้านตามระยะ, คลิกรายการเพื่อซูมไปหมุด
+- **Retry UI:** ปุ่ม "ลองใหม่" เมื่อ AI วิเคราะห์ไม่สำเร็จ พร้อมตัวนับวินาทีระหว่างรอ
+- **Responsive:** media query สำหรับมือถือ (sidebar เปลี่ยนเป็นแถบแนวนอน)
+- ชุมชนมีข้อมูลสาธิต (`demoPosts`) สำรองเมื่อฐานข้อมูลยังไม่มีโพสต์
+
+---
+
+## 8. DevOps / Infrastructure
+
+- **Dockerfile:** `python:3.11-slim`, ติดตั้ง dependencies, คัดลอกเฉพาะไฟล์ที่ต้องใช้, รัน `uvicorn main:app --host 0.0.0.0 --port 8000`
+- **docker-compose.yml**
+  - `postgres:15-alpine` + healthcheck (`pg_isready`) + volume `pgdata` + mount `init-postgres.sql`
+  - `fastapi_app` รอ postgres healthy ก่อนเริ่ม และใช้ `extra_hosts: host.docker.internal:host-gateway` ให้เรียก Ollama บนโฮสต์ได้
+  - `dpage/pgadmin4` พอร์ต 8080 + volume `pgadmin_data`
+- **ตัวแปรสภาพแวดล้อม:** `.env` / `.env.example` (DB, SECRET_KEY, CORS, pgAdmin, OLLAMA_*)
+- `.gitignore` และ `.dockerignore` กัน `.env` หลุดขึ้น Git/image
+- **สคริปต์ช่วย**
+  - `seed_admin.py` สร้างแอดมินคนแรก (รับค่าจาก env var หรือถามแบบโต้ตอบ ถ้าอีเมลมีอยู่แล้วจะอัปเกรดเป็น admin)
+  - `seed_demo.py` สร้างร้านตัวอย่าง 4 ร้านพร้อมพิกัด สินค้า และรีวิว (รันซ้ำได้ ไม่สร้างซ้ำ)
+
+### คำสั่งสำคัญ
+```bash
 docker compose up --build
-```
-
-5. **สร้างบัญชีแอดมินคนแรก** (ทำครั้งเดียว ตอน container `durian_fastapi` กำลังทำงานอยู่):
-
-```
 docker exec -it -e ADMIN_USERNAME=admin -e ADMIN_EMAIL=admin@example.com -e ADMIN_PASSWORD=yourpassword123 durian_fastapi python seed_admin.py
-```
-
-6. **(ไม่บังคับ) สร้างข้อมูลตัวอย่าง** ร้านค้า 4 ร้านพร้อมพิกัด สินค้า และรีวิว สำหรับทดสอบแผนที่ (บัญชีตัวอย่างใช้รหัสผ่าน `demo1234` ใช้ทดสอบเท่านั้น ควรลบก่อนใช้งานจริง):
-
-```
 docker exec -it durian_fastapi python seed_demo.py
 ```
 
-7. **เข้าใช้งานระบบผ่านเบราว์เซอร์:**
-   - หน้าเว็บหลัก (เข้าสู่ระบบ): http://localhost:8000
-   - เอกสาร API อัตโนมัติ (Swagger UI): http://localhost:8000/docs
-   - จัดการฐานข้อมูลผ่าน pgAdmin: http://localhost:8080
-   - ตรวจสถานะระบบ: http://localhost:8000/api/health
-
-8. **ลองใช้งานตามสิทธิ์:**
-   - สมัครสมาชิกจากหน้าแรก จะได้สิทธิ์ผู้ใช้ทั่วไปและเข้า `user.html`
-   - ล็อกอินด้วยแอดมินแล้วสร้างบัญชีผู้ขายจากหน้า `admin.html`
-   - ล็อกอินด้วยผู้ขายเพื่อเข้า `seller.html` ปักหมุดร้านและลงสินค้า
-
----
-
-## 🤖 การตั้งค่าหมอนทอง AI (Ollama)
-
-Ollama รันบนเครื่องโฮสต์ ไม่ได้อยู่ใน Docker คอนเทนเนอร์ FastAPI เรียกผ่าน `OLLAMA_BASE_URL` (ค่าเริ่มต้น `http://host.docker.internal:11434`) ตั้งค่าได้ในไฟล์ `.env`:
-
-| ตัวแปร | ค่าเริ่มต้น | ความหมาย |
-|---|---|---|
-| `OLLAMA_MODEL` | `qwen3-vl:2b-instruct` | โมเดลหลัก (อ่านรูปได้) ต้องเป็นรุ่น `-instruct` เพราะแท็กที่ไม่มีคำต่อท้าย (เช่น `qwen3-vl:2b`) เป็นรุ่น thinking ที่อาจใช้โทเค็นไปกับการคิดจนคำตอบว่าง |
-| `OLLAMA_TEXT_MODEL` | (ว่าง) | โมเดลที่เร็วกว่าสำหรับคำถามที่ไม่มีรูป ถ้าว่างจะใช้ `OLLAMA_MODEL` |
-| `OLLAMA_NUM_CTX` | `4096` | ขนาด context (ยิ่งมาก ยิ่งใช้ VRAM มาก) |
-| `OLLAMA_NUM_PREDICT` | `1000` | จำนวนโทเค็นสูงสุดของคำตอบ |
-| `OLLAMA_TIMEOUT` | `600` | เวลารอสูงสุดต่อคำถาม (วินาที) |
-
-**ข้อควรรู้เรื่องความเร็ว:** โมเดลต้องลงหน่วยความจำการ์ดจอให้ครบจึงจะเร็ว ตรวจด้วย `ollama ps` ให้คอลัมน์ `PROCESSOR` เป็น `100% GPU` ถ้าเป็น CPU/GPU ผสม คำตอบจะช้ามาก ให้เลือกโมเดลที่เล็กลง (เช่น `qwen3-vl:2b-instruct` สำหรับการ์ดจอ VRAM 4 GB) ทุกครั้งที่ถาม เซิร์ฟเวอร์จะพิมพ์ log `[ollama] ... speed=... tok/s` เพื่อใช้ตรวจสอบความเร็วจริง
-
-**ความทนทานของคำตอบ:** ถ้าโมเดลตอบผิดรูปแบบ ระบบจะลองใหม่อัตโนมัติ 1 ครั้งด้วยโหมด JSON ธรรมดา และถ้ายังไม่ได้แต่โมเดลตอบเป็นข้อความ จะแสดงข้อความนั้นแบบย่อแทนการขึ้นข้อผิดพลาด
+### พอร์ตและ URL
+| บริการ | URL |
+|---|---|
+| เว็บหลัก (login) | http://localhost:8000 |
+| Swagger UI | http://localhost:8000/docs |
+| Health check | http://localhost:8000/api/health |
+| pgAdmin | http://localhost:8080 |
+| PostgreSQL | localhost:5432 |
+| Ollama (โฮสต์) | http://localhost:11434 |
 
 ---
 
-## 📡 สรุปรายการ API Endpoints ที่รองรับ
+## 9. สรุป Tech Stack แบบสั้น
 
-**Authentication**
-- `POST /register`, `POST /login`, `POST /logout`, `POST /change-password`
-
-**User Management**
-- `GET /me`, `GET /check-username/{name}`
-- `GET /users` (รองรับ Pagination, **เฉพาะแอดมิน**)
-- `GET /users/{id}`, `PUT /users/{id}`, `DELETE /users/{id}` (เจ้าของบัญชีหรือแอดมิน; ลบแอดมินคนสุดท้ายไม่ได้)
-
-**Admin** (เฉพาะสิทธิ์แอดมิน)
-- `POST /admin/sellers`, `PATCH /admin/users/{id}/role`, `GET /admin/stats`
-
-**Shops & Products**
-- `GET /shops`, `GET /shops/mine`, `PUT /shops/mine`
-- `GET /products`, `GET /products/mine`, `POST /products`, `PUT /products/{id}`, `DELETE /products/{id}`
-- `GET /products/{id}/reviews`, `POST /products/{id}/reviews` (1 คน 1 สินค้า ส่งซ้ำจะแก้รีวิวเดิม และผู้ขายรีวิวสินค้าของร้านตัวเองไม่ได้)
-
-**Community**
-- `GET /posts`, `POST /posts`, `DELETE /posts/{id}` (เจ้าของโพสต์หรือแอดมิน), `GET /posts/{id}/comments`, `POST /posts/{id}/comments`
-
-**หมอนทอง AI**
-- `POST /diagnose` (ข้อความอาการ และ/หรือรูป JPG / PNG / WEBP ไม่เกิน 10MB) วิเคราะห์ด้วย Ollama ตอบกลับเป็น JSON: ปัญหา สาเหตุ ความมั่นใจ ข้อแนะนำ และคำค้น YouTube
-
-> ทุก endpoint ยกเว้น `/register`, `/login`, `/check-username/{name}` และ `/api/health` ต้องแนบ JWT ในรูปแบบ `Authorization: Bearer <token>`
+- **Frontend:** HTML5 · CSS3 · Vanilla JS · Chart.js · Leaflet + OpenStreetMap · Google Fonts
+- **Backend:** Python 3.11 · FastAPI · Pydantic · SQLAlchemy · Uvicorn
+- **Auth/Security:** JWT (python-jose, HS256, jti + revoked_tokens) · bcrypt (passlib) · RBAC 3 ระดับ · escape ป้องกัน XSS
+- **Database:** PostgreSQL 15
+- **AI:** Ollama · qwen3-vl (vision-language) · JSON Schema structured output
+- **DevOps:** Docker · Docker Compose · pgAdmin 4
 
 ---
 
-## 🧭 สถานะการพัฒนา (Project Status)
+## 10. จุดที่ควรรู้ (ข้อจำกัด / สิ่งที่ควรปรับก่อนใช้งานจริง)
 
-**ทำเสร็จแล้ว**
-- ระบบสมาชิก 3 สิทธิ์ พร้อมล็อกอิน ออกจากระบบ และเปลี่ยนรหัสผ่าน
-- หน้าผู้ขาย: ปักหมุดร้าน จัดการสินค้าและสต๊อก ดูรีวิว
-- หน้าแอดมิน: สร้างผู้ขาย จัดการสิทธิ์ ดูภาพรวมระบบ
-- ระบบชุมชน (โพสต์และคอมเมนต์) และรีวิวสินค้า
-- หมอนทอง AI เชื่อมกับ Ollama จริง (ข้อความและรูป) พร้อมระบบลองใหม่และแสดงข้อผิดพลาดพร้อมปุ่มลองใหม่
-- แผนที่ร้านค้าใกล้แปลง (Leaflet + OpenStreetMap) ดึงร้านจริงจากฐานข้อมูล ค้นหา กรองตามระยะ/สต๊อก และนำทาง
-- ปิดช่องโหว่สิทธิ์: `GET /users` เฉพาะแอดมิน, แอดมินแก้/ลบบัญชีเป้าหมายได้ถูกต้อง, เปลี่ยนรหัสผ่านแล้ว token เดิมใช้ไม่ได้
-
-**กำลังพัฒนา / แผนต่อไป**
-- รูปโปรไฟล์ตอนสมัครสมาชิก และชื่อ/สิทธิ์ที่แสดงในหน้าผู้ใช้
-- ประวัติการแจ้งปัญหาแบบแชท เปิดดูย้อนหลังได้
-- ตารางเทียบอะไหล่และแดชบอร์ดในหน้าผู้ใช้ ยังเป็นข้อมูลตัวอย่าง รอเชื่อมข้อมูลจริง
-- แนะนำอะไหล่ทดแทน และเพิ่มเบอร์โทรร้านค้า
-- ทดสอบอัตโนมัติ (unit/integration test) และ rate limit ที่ `/login`
-
----
-
-## 👥 สมาชิก
-1. 67160158 - นายชินภัทร เบลเลอร์
-
-
----
-
-## 🖼️ ภาพประกอบ
-
-### สถาปัตยกรรมระบบ
-![สถาปัตยกรรมระบบ](durian_architecture.png)
-
-### Technology Stack
-![Technology Stack](durian_tech_stack.png)
-
-> หมายเหตุ: ภาพสถาปัตยกรรมวาดตอนที่ Ollama ยังอยู่ในแผนพัฒนา ปัจจุบันหมอนทอง AI เชื่อมกับ Ollama แล้ว และหน้าผู้ใช้แสดงแผนที่ร้านค้าด้วย Leaflet
-"# ThurianDi_finish" 
-"# ThurianDi_finish" 
+- ต้องเปลี่ยน `SECRET_KEY` เป็นค่าสุ่มยาวๆ (ถ้ายังเป็นค่าเริ่มต้น ระบบจะเตือนใน log)
+- `CORS_ORIGINS=*` เหมาะกับตอนพัฒนา ควรกำหนดโดเมนจริงตอนใช้งานจริง
+- รหัสผ่านฐานข้อมูล/pgAdmin ใน `.env` เป็นค่าตัวอย่าง ควรเปลี่ยน
+- บัญชี demo (`demo1234`) ใช้ทดสอบเท่านั้น ควรลบก่อนใช้งานจริง
+- ตารางเทียบอะไหล่ แดชบอร์ดสวน และประวัติการแจ้งปัญหาในหน้าผู้ใช้ ยังเป็นข้อมูลตัวอย่างฝั่ง frontend
+- ปุ่มแนบรูปในโพสต์ชุมชนและปุ่มส่งต่อช่างซ่อม ยังเป็น placeholder
+- ยังไม่มี automated test และ rate limit ที่ `/login`
+- Ollama ต้องให้โมเดลลง GPU ให้ครบ (ตรวจด้วย `ollama ps`) ไม่งั้นตอบช้ามาก
+- โทเค็นเก็บใน localStorage (เสี่ยงต่อ XSS หากมีช่องโหว่ จึงต้อง escape ข้อมูลให้ครบทุกจุด)
