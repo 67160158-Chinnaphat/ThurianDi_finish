@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>แผงควบคุมผู้ขาย — ทุเรียนดี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF7EE; --ink:#2B2118; --leaf:#33553D; --leaf-dark:#254030;
+    --gold:#A8832E; --red:#A8402F; --line:#E4DCC8; --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Noto Sans Thai',sans-serif;font-size:15px;line-height:1.6;}
+  h1,h2{font-family:'Noto Serif Thai',serif;margin:0 0 4px;font-weight:700;}
+  .shell{max-width:980px;margin:0 auto;padding:28px 20px 80px;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;margin-bottom:28px;border-bottom:3px solid var(--gold);}
+  .topbar h1{font-size:22px;color:var(--leaf-dark);}
+  .topbar .sub{color:#665f4f;font-size:13px;}
+  .who{display:flex;align-items:center;gap:12px;font-size:14px;}
+  .who .name{font-weight:600;color:var(--leaf-dark);}
+  button{cursor:pointer;font-family:inherit;}
+  .btn{background:var(--leaf);color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:600;font-size:14px;}
+  .btn:hover{background:var(--leaf-dark);}
+  .btn.gold{background:var(--gold);} .btn.gold:hover{background:#8c6c24;}
+  .btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+  .btn.ghost:hover{border-color:var(--leaf);}
+  .btn.small{padding:5px 12px;font-size:12.5px;border-radius:5px;}
+  .btn.danger{background:var(--red);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  #loginGate{max-width:380px;margin:80px auto;}
+  #loginGate .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:32px;}
+  #loginGate h2{color:var(--leaf-dark);font-size:20px;margin-bottom:6px;}
+  #loginGate p.hint{color:#7a7263;font-size:13px;margin:0 0 20px;}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:#4a4436;}
+  input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:6px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--leaf);}
+  .error{color:var(--red);font-size:13px;margin-top:12px;min-height:18px;}
+  .success{color:var(--leaf-dark);font-size:13px;margin-top:12px;}
+
+  #dashboard{display:none;}
+  #accessDenied{display:none;max-width:420px;margin:80px auto;text-align:center;color:#7a7263;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:24px;}
+  section h2{font-size:18px;color:var(--leaf-dark);}
+  section p.desc{color:#7a7263;font-size:13px;margin:2px 0 18px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid4{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:16px;}
+  @media (max-width:640px){.grid2,.grid4{grid-template-columns:1fr;}}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;padding:9px 10px;border-bottom:2px solid var(--line);color:#5c5546;font-weight:600;font-size:12.5px;}
+  td{padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  td input{padding:6px 8px;font-size:13px;}
+  .empty{color:#9a9282;font-size:13.5px;padding:12px 0;}
+  .stars{color:var(--gold);letter-spacing:1px;}
+  .reviewCard{border-bottom:1px solid var(--line);padding:12px 0;}
+  .reviewCard:last-child{border-bottom:none;}
+  .reviewMeta{font-size:12.5px;color:#8a8272;margin-top:2px;}
+  .rowActions{display:flex;gap:6px;}
+</style>
+<style>.auth-pending body{visibility:hidden}</style>
+<script>document.documentElement.classList.add("auth-pending")</script>
+</head>
+<body>
+
+<div id="dashboard" class="shell">
+  <div class="topbar">
+    <div><h1>แผงควบคุมผู้ขาย</h1><div class="sub">ทุเรียนดี — ผู้ช่วยชาวสวนทุเรียน</div></div>
+    <div class="who">
+      <div><div class="name" id="whoName"></div><div style="font-size:12px;color:#8a8272;">ผู้ขาย</div></div>
+      <button class="btn ghost small" id="logoutBtn">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <section>
+    <h2>ร้านของฉัน</h2>
+    <p class="desc">ปักหมุดตำแหน่งร้านให้ลูกค้าเห็นบนแผนที่</p>
+    <form id="shopForm">
+      <div class="grid2">
+        <div><label>ชื่อร้าน</label><input id="shop_name" required /></div>
+        <div><label>ที่อยู่ (ไม่บังคับ)</label><input id="shop_address" /></div>
+        <div><label>ละติจูด (Latitude)</label><input id="shop_lat" type="number" step="any" /></div>
+        <div><label>ลองจิจูด (Longitude)</label><input id="shop_lng" type="number" step="any" /></div>
+      </div>
+      <button type="button" class="btn ghost small" id="useLocationBtn" style="margin-top:12px;">ใช้ตำแหน่งปัจจุบันของฉัน</button>
+      <div class="error" id="shopError"></div>
+      <div class="success" id="shopSuccess"></div>
+      <button class="btn gold" style="margin-top:16px;" type="submit">บันทึกข้อมูลร้าน</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>สินค้าในร้าน</h2>
+    <p class="desc">เพิ่มสินค้าและอัปเดตสต๊อก/ราคาได้ที่นี่</p>
+    <form id="productForm" class="grid4" style="margin-bottom:18px;">
+      <div><label>ชื่อสินค้า</label><input id="p_name" required /></div>
+      <div><label>หน่วย</label><input id="p_unit" value="กิโลกรัม" required /></div>
+      <div><label>ราคา (บาท)</label><input id="p_price" type="number" step="0.01" min="0" required /></div>
+      <div><label>จำนวนคงเหลือ</label><input id="p_stock" type="number" min="0" required /></div>
+    </form>
+    <button class="btn gold small" id="addProductBtn" type="button">เพิ่มสินค้า</button>
+    <div class="error" id="productError" style="margin-top:10px;"></div>
+
+    <table style="margin-top:18px;">
+      <thead><tr><th>สินค้า</th><th>หน่วย</th><th>ราคา</th><th>คงเหลือ</th><th>คะแนนรีวิว</th><th></th></tr></thead>
+      <tbody id="productRows"></tbody>
+    </table>
+    <div id="productEmpty" class="empty" style="display:none;">ยังไม่มีสินค้า เพิ่มสินค้าแรกของร้านได้เลย</div>
+  </section>
+
+  <section>
+    <h2>รีวิวสินค้า</h2>
+    <p class="desc">เลือกสินค้าเพื่อดูรีวิวจากลูกค้า</p>
+    <select id="reviewProductSelect" style="max-width:320px;"></select>
+    <div id="reviewList" style="margin-top:14px;"></div>
+    <div id="reviewEmpty" class="empty" style="display:none;">ยังไม่มีรีวิวสำหรับสินค้านี้</div>
+  </section>
+</div>
+
+<script src="common.js"></script>
+<script>
+let myProducts = [];
+
+function showDashboard(user){
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("whoName").textContent = user.username;
+  loadShop();
+  loadProducts();
+}
+
+document.getElementById("logoutBtn").addEventListener("click", logout);
+
+document.getElementById("useLocationBtn").addEventListener("click", ()=>{
+  if(!navigator.geolocation){ alert("เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง"); return; }
+  navigator.geolocation.getCurrentPosition(
+    (pos)=>{
+      document.getElementById("shop_lat").value = pos.coords.latitude.toFixed(6);
+      document.getElementById("shop_lng").value = pos.coords.longitude.toFixed(6);
+    },
+    ()=> alert("ไม่สามารถเข้าถึงตำแหน่งได้ กรุณากรอกละติจูด/ลองจิจูดเอง")
+  );
+});
+
+async function loadShop(){
+  try{
+    const shop = await api("/shops/mine");
+    document.getElementById("shop_name").value = shop.name || "";
+    document.getElementById("shop_address").value = shop.address || "";
+    document.getElementById("shop_lat").value = shop.latitude ?? "";
+    document.getElementById("shop_lng").value = shop.longitude ?? "";
+  }catch(e){ /* ยังไม่มีข้อมูลร้าน ให้กรอกใหม่ */ }
+}
+
+document.getElementById("shopForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const err = document.getElementById("shopError");
+  const ok = document.getElementById("shopSuccess");
+  err.textContent = ""; ok.textContent = "";
+  const body = {
+    name: document.getElementById("shop_name").value.trim(),
+    address: document.getElementById("shop_address").value.trim() || null,
+    latitude: document.getElementById("shop_lat").value ? parseFloat(document.getElementById("shop_lat").value) : null,
+    longitude: document.getElementById("shop_lng").value ? parseFloat(document.getElementById("shop_lng").value) : null,
+  };
+  try{
+    await api("/shops/mine", {method:"PUT", body: JSON.stringify(body)});
+    ok.textContent = "บันทึกข้อมูลร้านเรียบร้อยแล้ว";
+  }catch(ex){ err.textContent = ex.message; }
+});
+
+function starString(avg){
+  if(avg == null) return '<span class="empty">ยังไม่มีรีวิว</span>';
+  const full = Math.round(avg);
+  return `<span class="stars">${"★".repeat(full)}${"☆".repeat(5-full)}</span> ${avg.toFixed(1)}`;
+}
+
+async function loadProducts(){
+  myProducts = await api("/products/mine");
+  const rows = document.getElementById("productRows");
+  const empty = document.getElementById("productEmpty");
+  rows.innerHTML = "";
+  empty.style.display = myProducts.length === 0 ? "block" : "none";
+  for(const p of myProducts){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${esc(p.name)}</td>
+      <td>${esc(p.unit)}</td>
+      <td><input type="number" step="0.01" min="0" value="${p.price}" data-field="price" data-id="${p.id}" style="width:90px;" /></td>
+      <td><input type="number" min="0" value="${p.stock_quantity}" data-field="stock_quantity" data-id="${p.id}" style="width:80px;" /></td>
+      <td>${starString(p.avg_rating)} <span style="color:#9a9282;">(${p.review_count})</span></td>
+      <td class="rowActions">
+        <button class="btn small" data-save="${p.id}">บันทึก</button>
+        <button class="btn danger small" data-delete="${p.id}">ลบ</button>
+      </td>`;
+    rows.appendChild(tr);
+  }
+  rows.querySelectorAll("[data-save]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-save");
+      const price = rows.querySelector(`input[data-field="price"][data-id="${id}"]`).value;
+      const stock = rows.querySelector(`input[data-field="stock_quantity"][data-id="${id}"]`).value;
+      btn.disabled = true; btn.textContent = "กำลังบันทึก...";
+      try{
+        await api(`/products/${id}`, {method:"PUT", body: JSON.stringify({price: parseFloat(price), stock_quantity: parseInt(stock)})});
+        btn.textContent = "บันทึกแล้ว";
+        setTimeout(()=>{ btn.disabled=false; btn.textContent="บันทึก"; }, 1000);
+      }catch(ex){ alert(ex.message); btn.disabled=false; btn.textContent="บันทึก"; }
+    });
+  });
+  rows.querySelectorAll("[data-delete]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      if(!confirm("ต้องการลบสินค้านี้ใช่ไหม?")) return;
+      const id = btn.getAttribute("data-delete");
+      try{ await api(`/products/${id}`, {method:"DELETE"}); loadProducts(); }
+      catch(ex){ alert(ex.message); }
+    });
+  });
+  populateReviewSelect();
+}
+
+document.getElementById("addProductBtn").addEventListener("click", async ()=>{
+  const err = document.getElementById("productError");
+  err.textContent = "";
+  const body = {
+    name: document.getElementById("p_name").value.trim(),
+    unit: document.getElementById("p_unit").value.trim() || "ชิ้น",
+    price: parseFloat(document.getElementById("p_price").value),
+    stock_quantity: parseInt(document.getElementById("p_stock").value),
+  };
+  if(!body.name || isNaN(body.price) || isNaN(body.stock_quantity)){
+    err.textContent = "กรุณากรอกข้อมูลสินค้าให้ครบถ้วน";
+    return;
+  }
+  try{
+    await api("/products", {method:"POST", body: JSON.stringify(body)});
+    document.getElementById("productForm").reset();
+    document.getElementById("p_unit").value = "กิโลกรัม";
+    loadProducts();
+  }catch(ex){ err.textContent = ex.message; }
+});
+
+function populateReviewSelect(){
+  const select = document.getElementById("reviewProductSelect");
+  const prevValue = select.value;
+  select.innerHTML = "";
+  if(myProducts.length === 0){
+    select.innerHTML = `<option value="">— ยังไม่มีสินค้า —</option>`;
+    document.getElementById("reviewList").innerHTML = "";
+    document.getElementById("reviewEmpty").style.display = "none";
+    return;
+  }
+  for(const p of myProducts){
+    const opt = document.createElement("option");
+    opt.value = p.id; opt.textContent = p.name;
+    select.appendChild(opt);
+  }
+  select.value = prevValue && myProducts.some(p=>String(p.id)===prevValue) ? prevValue : myProducts[0].id;
+  loadReviews(select.value);
+}
+
+document.getElementById("reviewProductSelect").addEventListener("change", (e)=> loadReviews(e.target.value));
+
+async function loadReviews(productId){
+  if(!productId) return;
+  const reviews = await api(`/products/${productId}/reviews`);
+  const list = document.getElementById("reviewList");
+  const empty = document.getElementById("reviewEmpty");
+  list.innerHTML = "";
+  empty.style.display = reviews.length === 0 ? "block" : "none";
+  for(const r of reviews){
+    const div = document.createElement("div");
+    div.className = "reviewCard";
+    const stars = "★".repeat(r.rating) + "☆".repeat(5-r.rating);
+    const date = new Date(r.created_at).toLocaleDateString("th-TH");
+    div.innerHTML = `
+      <div class="stars">${stars}</div>
+      <div>${r.comment ? esc(r.comment) : "<span style='color:#9a9282;'>ไม่มีความคิดเห็นเพิ่มเติม</span>"}</div>
+      <div class="reviewMeta">โดย ${esc(r.username)} • ${date}</div>`;
+    list.appendChild(div);
+  }
+}
+
+requireAuth(["seller"]).then(showDashboard);
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>แผงควบคุมแอดมิน — ทุเรียนดี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@600;700&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF7EE;
+    --ink:#2B2118;
+    --leaf:#33553D;
+    --leaf-dark:#254030;
+    --gold:#A8832E;
+    --red:#A8402F;
+    --line:#E4DCC8;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:'Noto Sans Thai', sans-serif; font-size:15px; line-height:1.6;
+  }
+  h1,h2,h3{font-family:'Noto Serif Thai', serif; margin:0 0 4px; font-weight:700;}
+  .shell{max-width:980px;margin:0 auto;padding:28px 20px 80px;}
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:18px;margin-bottom:28px;border-bottom:3px solid var(--leaf);
+  }
+  .topbar h1{font-size:22px;color:var(--leaf-dark);}
+  .topbar .sub{color:#665f4f;font-size:13px;}
+  .who{display:flex;align-items:center;gap:12px;font-size:14px;}
+  .who .name{font-weight:600;color:var(--leaf-dark);}
+  button{cursor:pointer;font-family:inherit;}
+  .btn{
+    background:var(--leaf); color:#fff; border:none; padding:9px 18px;
+    border-radius:6px; font-weight:600; font-size:14px;
+  }
+  .btn:hover{background:var(--leaf-dark);}
+  .btn.gold{background:var(--gold);}
+  .btn.gold:hover{background:#8c6c24;}
+  .btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+  .btn.ghost:hover{border-color:var(--leaf);}
+  .btn.small{padding:5px 12px;font-size:12.5px;border-radius:5px;}
+  .btn.danger{background:var(--red);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* ---- Login gate ---- */
+  #loginGate{max-width:380px;margin:80px auto;}
+  #loginGate .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:32px;}
+  #loginGate h2{color:var(--leaf-dark);font-size:20px;margin-bottom:6px;}
+  #loginGate p.hint{color:#7a7263;font-size:13px;margin:0 0 20px;}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:#4a4436;}
+  input{
+    width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:6px;
+    font-size:14px; font-family:inherit; background:#fff; color:var(--ink);
+  }
+  input:focus{outline:none;border-color:var(--leaf);}
+  .error{color:var(--red);font-size:13px;margin-top:12px;min-height:18px;}
+  .success{color:var(--leaf-dark);font-size:13px;margin-top:12px;}
+
+  /* ---- Dashboard ---- */
+  #dashboard{display:none;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:24px;}
+  section h2{font-size:18px;color:var(--leaf-dark);}
+  section p.desc{color:#7a7263;font-size:13px;margin:2px 0 18px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr;}}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;padding:9px 10px;border-bottom:2px solid var(--line);color:#5c5546;font-weight:600;font-size:12.5px;}
+  td{padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .badge.admin{background:#F0E4C7;color:#7a5a12;}
+  .badge.seller{background:#DCEBDF;color:var(--leaf-dark);}
+  .badge.user{background:#EAE6D9;color:#665f4f;}
+  .roleRow{display:flex;gap:8px;align-items:center;}
+  select{padding:6px 8px;border:1.5px solid var(--line);border-radius:5px;font-family:inherit;font-size:12.5px;}
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;}
+  .toolbar input{flex:1;}
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:13px;color:#7a7263;}
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;}
+  @media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr);}}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;text-align:center;}
+  .stat b{display:block;font-family:'Noto Serif Thai',serif;font-size:26px;color:var(--leaf-dark);}
+  .stat span{font-size:12.5px;color:#7a7263;}
+  .empty{color:#9a9282;font-size:13.5px;padding:12px 0;}
+</style>
+<style>.auth-pending body{visibility:hidden}</style>
+<script>document.documentElement.classList.add("auth-pending")</script>
+</head>
+<body>
+
+<div id="dashboard" class="shell">
+  <div class="topbar">
+    <div>
+      <h1>แผงควบคุมแอดมิน</h1>
+      <div class="sub">ทุเรียนดี — ผู้ช่วยชาวสวนทุเรียน</div>
+    </div>
+    <div class="who">
+      <div><div class="name" id="whoName"></div><div style="font-size:12px;color:#8a8272;">admin</div></div>
+      <button class="btn ghost small" id="logoutBtn">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="stats"><div class="stat"><b id="st_users">–</b><span>ผู้ใช้ทั้งหมด</span></div><div class="stat"><b id="st_sellers">–</b><span>ผู้ขาย</span></div><div class="stat"><b id="st_admins">–</b><span>แอดมิน</span></div><div class="stat"><b id="st_shops">–</b><span>ร้านค้า</span></div><div class="stat"><b id="st_products">–</b><span>สินค้า</span></div></div>
+
+  <section>
+    <h2>สร้างบัญชีผู้ขาย</h2>
+    <p class="desc">ผู้ขายไม่สามารถสมัครเองผ่านหน้าเว็บได้ ต้องให้แอดมินสร้างบัญชีให้ที่นี่เท่านั้น</p>
+    <form id="sellerForm">
+      <div class="grid2">
+        <div><label>ชื่อผู้ใช้</label><input id="s_username" required /></div>
+        <div><label>อีเมล</label><input id="s_email" type="email" required /></div>
+        <div><label>รหัสผ่าน (อย่างน้อย 6 ตัวอักษร)</label><input id="s_password" type="password" required minlength="6" /></div>
+        <div><label>ชื่อร้านค้า</label><input id="s_shop" required /></div>
+      </div>
+      <div class="error" id="sellerError"></div>
+      <div class="success" id="sellerSuccess"></div>
+      <button class="btn gold" style="margin-top:16px;" type="submit">สร้างบัญชีผู้ขาย</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>ผู้ใช้ทั้งหมด</h2>
+    <p class="desc">ค้นหาและปรับสิทธิ์ผู้ใช้ในระบบ</p>
+    <div class="toolbar">
+      <input id="userSearch" placeholder="ค้นหาชื่อผู้ใช้หรืออีเมล..." />
+      <button class="btn ghost small" id="searchBtn">ค้นหา</button>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>ชื่อผู้ใช้</th><th>อีเมล</th><th>สิทธิ์</th><th>สถานะ</th><th>เปลี่ยนสิทธิ์เป็น</th></tr>
+      </thead>
+      <tbody id="userRows"></tbody>
+    </table>
+    <div id="userEmpty" class="empty" style="display:none;">ไม่พบผู้ใช้</div>
+    <div class="pager">
+      <span id="pagerInfo"></span>
+      <div>
+        <button class="btn ghost small" id="prevPage">ก่อนหน้า</button>
+        <button class="btn ghost small" id="nextPage">ถัดไป</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="common.js"></script>
+<script>
+let me = null;
+let currentPage = 1;
+const pageSize = 10;
+
+function showDashboard(user){
+  me = user;
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("whoName").textContent = user.username;
+  loadStats();
+  loadUsers();
+}
+
+async function loadStats(){
+  try{
+    const st = await api("/admin/stats");
+    for(const k of ["users","sellers","admins","shops","products"]) document.getElementById("st_"+k).textContent = st[k];
+  }catch(e){}
+}
+
+document.getElementById("logoutBtn").addEventListener("click", logout);
+
+document.getElementById("sellerForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const err = document.getElementById("sellerError");
+  const ok = document.getElementById("sellerSuccess");
+  err.textContent = ""; ok.textContent = "";
+  const body = {
+    username: document.getElementById("s_username").value.trim(),
+    email: document.getElementById("s_email").value.trim(),
+    password: document.getElementById("s_password").value,
+    shop_name: document.getElementById("s_shop").value.trim(),
+  };
+  try{
+    const created = await api("/admin/sellers", {method:"POST", body: JSON.stringify(body)});
+    ok.textContent = `สร้างบัญชีผู้ขาย "${created.username}" เรียบร้อยแล้ว`;
+    document.getElementById("sellerForm").reset();
+    loadUsers(); loadStats();
+  }catch(ex){ err.textContent = ex.message; }
+});
+
+function roleBadge(role){
+  const label = role === "admin" ? "แอดมิน" : role === "seller" ? "ผู้ขาย" : "ผู้ใช้ทั่วไป";
+  return `<span class="badge ${role}">${label}</span>`;
+}
+
+async function loadUsers(){
+  const q = document.getElementById("userSearch").value.trim();
+  const params = new URLSearchParams({page: currentPage, page_size: pageSize});
+  if(q) params.set("q", q);
+  const data = await api("/users?" + params.toString());
+  const rows = document.getElementById("userRows");
+  const empty = document.getElementById("userEmpty");
+  rows.innerHTML = "";
+  if(data.items.length === 0){ empty.style.display = "block"; }
+  else { empty.style.display = "none"; }
+  for(const u of data.items){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${u.id}</td>
+      <td>${esc(u.username)}</td>
+      <td>${esc(u.email)}</td>
+      <td>${roleBadge(u.role)}</td>
+      <td>${u.is_active ? "ใช้งานอยู่" : "ปิดใช้งาน"}</td>
+      <td>
+        <div class="roleRow">
+          <select data-id="${u.id}" ${u.id===me.id?"disabled title=\"เปลี่ยนสิทธิ์ของบัญชีตัวเองไม่ได้\"":""}>
+            <option value="user" ${u.role==="user"?"selected":""}>ผู้ใช้ทั่วไป</option>
+            <option value="seller" ${u.role==="seller"?"selected":""}>ผู้ขาย</option>
+            <option value="admin" ${u.role==="admin"?"selected":""}>แอดมิน</option>
+          </select>
+          <button class="btn small" data-apply="${u.id}" ${u.id===me.id?"disabled":""}>บันทึก</button>
+        </div>
+      </td>`;
+    rows.appendChild(tr);
+  }
+  document.getElementById("pagerInfo").textContent =
+    `หน้า ${data.page} จาก ${data.pages || 1} • ทั้งหมด ${data.total} คน`;
+  document.getElementById("prevPage").disabled = data.page <= 1;
+  document.getElementById("nextPage").disabled = data.page >= data.pages;
+
+  rows.querySelectorAll("[data-apply]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-apply");
+      const select = rows.querySelector(`select[data-id="${id}"]`);
+      btn.disabled = true; btn.textContent = "กำลังบันทึก...";
+      try{
+        await api(`/admin/users/${id}/role`, {method:"PATCH", body: JSON.stringify({role: select.value})});
+        btn.textContent = "บันทึกแล้ว";
+        setTimeout(()=>loadUsers(), 400);
+      }catch(ex){
+        alert(ex.message);
+        btn.disabled = false; btn.textContent = "บันทึก";
+      }
+    });
+  });
+}
+
+document.getElementById("searchBtn").addEventListener("click", ()=>{ currentPage = 1; loadUsers(); });
+document.getElementById("userSearch").addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ currentPage=1; loadUsers(); } });
+document.getElementById("prevPage").addEventListener("click", ()=>{ if(currentPage>1){ currentPage--; loadUsers(); } });
+document.getElementById("nextPage").addEventListener("click", ()=>{ currentPage++; loadUsers(); });
+
+requireAuth(["admin"]).then(showDashboard);
+</script>
+</body>
+</html>

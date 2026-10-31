@@ -1,0 +1,17 @@
+# ความลับ
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# เครื่องมือ/ระบบ
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log

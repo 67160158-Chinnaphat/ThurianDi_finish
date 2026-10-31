@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าสู่ระบบ — ทุเรียนดี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="modal-backdrop open" id="authModal">
+    <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="auth-brand">ทุเรียนดี</div>
+      <h2 id="authTitle">เข้าสู่ระบบ</h2>
+      <p class="auth-subtitle">กรุณาเข้าสู่ระบบก่อนใช้งาน ระบบจะพาคุณไปยังหน้าตามสิทธิ์ของบัญชี</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth-mode="login">เข้าสู่ระบบ</button>
+        <button class="auth-tab" data-auth-mode="register">สมัครสมาชิก</button>
+      </div>
+      <form id="authForm" class="auth-form">
+        <input class="text-input" id="authUsername" placeholder="ชื่อที่ใช้แสดง (อย่างน้อย 3 ตัวอักษร)" minlength="3" maxlength="50" hidden>
+        <input class="text-input" id="authEmail" placeholder="อีเมล เช่น name@example.com" type="email" autocomplete="email" required>
+        <input class="text-input" id="authPassword" placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร" type="password" required minlength="6">
+        <button class="btn btn-gold" type="submit" id="authSubmit">เข้าสู่ระบบ</button>
+        <div class="auth-status" id="authStatus"></div>
+      </form>
+    </div>
+  </div>
+
+
+<script src="common.js"></script>
+<script>
+let mode="login";
+const $=id=>document.getElementById(id);
+function goHome(role){location.replace(ROLE_HOME[role]||"/user.html");}
+(async()=>{ if(getToken()){ try{ const me=await api("/me"); goHome(me.role);}catch{clearSession();} } })();
+function setMode(m){mode=m;
+  document.querySelectorAll(".auth-tab").forEach(t=>t.classList.toggle("active",t.dataset.authMode===m));
+  $("authTitle").textContent=m==="login"?"เข้าสู่ระบบ":"สมัครสมาชิก";
+  $("authUsername").hidden=m==="login"; $("authUsername").required=m==="register";
+  $("authSubmit").textContent=m==="login"?"เข้าสู่ระบบ":"สร้างบัญชี"; $("authStatus").textContent="";}
+document.querySelectorAll(".auth-tab").forEach(t=>t.addEventListener("click",()=>setMode(t.dataset.authMode)));
+$("authForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const username=$("authUsername").value.trim(), email=$("authEmail").value.trim(), password=$("authPassword").value;
+  $("authStatus").textContent="กำลังเชื่อมต่อ...";
+  try{
+    if(mode==="register") await api("/register",{method:"POST",body:JSON.stringify({username,password,email})});
+    const data=await api("/login",{method:"POST",body:JSON.stringify({email,password})});
+    saveSession(data); goHome(data.user.role);
+  }catch(err){$("authStatus").textContent=err.message;}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ทุเรียนดี — ผู้ช่วยชาวสวนทุเรียน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="style.css?v=2">
+<style>.auth-pending body{visibility:hidden}</style>
+<script>document.documentElement.classList.add("auth-pending")</script>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="hex logo-mark"><span>ท</span></div>
+      <div class="brand-text">
+        <div class="brand-name">ทุเรียนดี</div>
+        <div class="brand-sub">ผู้ช่วยชาวสวนทุเรียน</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="mainNav">
+      <button class="nav-item active" data-view="diagnosis">
+        <span class="nav-icon hex">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 8.5V6a2 2 0 0 1 2-2h2.5M20 8.5V6a2 2 0 0 0-2-2h-2.5M4 15.5V18a2 2 0 0 0 2 2h2.5M20 15.5V18a2 2 0 0 1-2 2h-2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.4" stroke="currentColor" stroke-width="1.6"/></svg>
+        </span>
+        <span class="nav-label">หมอนทอง AI ผู้ช่วยอุปกรณ์สวน</span>
+      </button>
+      <button class="nav-item" data-view="community">
+        <span class="nav-icon hex">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 18v-1a3 3 0 0 1 3-3h2a3 3 0 0 1 3 3v1M9 11a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM14 18v-1a3 3 0 0 1 2.2-2.9M13.2 6.2a2.5 2.5 0 1 1 3.2 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        <span class="nav-label">ชุมชนและรีวิว</span>
+      </button>
+      <button class="nav-item" data-view="parts">
+        <span class="nav-icon hex">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a3 3 0 0 0-4.1 3.9l-6 6a1.6 1.6 0 0 0 2.2 2.2l6-6a3 3 0 0 0 3.9-4.1l-2 2-1.9-.3-.3-1.9 2-2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="nav-label">เทียบอะไหล่เกษตร</span>
+      </button>
+      <button class="nav-item" data-view="dashboard">
+        <span class="nav-icon hex">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20v-7M20 20v3.0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 20h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        <span class="nav-label">แดชบอร์ดสวนของฉัน</span>
+      </button>
+      <button class="nav-item" data-view="share">
+        <span class="nav-icon hex">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="12" r="2.2" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="6" r="2.2" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="18" r="2.2" stroke="currentColor" stroke-width="1.6"/><path d="M7.8 11l8.4-4M7.8 13l8.4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        <span class="nav-label">แบ่งปันข้อมูล</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="hex user-mark">👨‍🌾</div>
+      <div class="user-info">
+        <div class="user-name">คุณสมชาย ใจสวน</div>
+        <div class="user-sub">สวนทุเรียนบ้านโป่ง · 12 ไร่</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="content">
+
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">หมอนทอง AI ผู้ช่วยอุปกรณ์สวน</h1>
+        <p id="pageSubtitle" class="page-subtitle">ถ่ายรูปหรือพิมพ์อาการของเครื่องมือ/อุปกรณ์ทำสวนที่มีปัญหา แล้วให้หมอนทองช่วยวิเคราะห์และแนะนำวิธีแก้เบื้องต้น</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost auth-btn" id="authBtn">เข้าสู่ระบบ</button>
+        <button class="icon-btn" id="notifBtn" title="การแจ้งเตือน">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 13 6 9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+        <div class="hex avatar-sm">👨‍🌾</div>
+      </div>
+    </header>
+
+    <div class="spike-divider"></div>
+
+    <!-- Notification dropdown -->
+    <div class="notif-panel" id="notifPanel">
+      <div class="notif-panel-title">การแจ้งเตือน</div>
+      <div class="notif-item"><b>สมหญิง สวนดี</b> แสดงความคิดเห็นในโพสต์ของคุณ</div>
+      <div class="notif-item"><b>ระบบวินิจฉัย</b> พบความเสี่ยงโรครากเน่าเพิ่มขึ้นในแปลง 2</div>
+      <div class="notif-item"><b>ร้านเกษตรพัฒนา</b> มีอะไหล่ปั๊มรุ่นที่คุณค้นหาเข้าใหม่</div>
+    </div>
+
+    <!-- ================= VIEW 1: AI DIAGNOSIS ================= -->
+    <section class="view active" id="view-diagnosis">
+      <div class="grid-2">
+        <div class="panel chat-panel">
+          <div class="chat-window" id="chatWindow">
+            <div class="msg bot">
+              <div class="hex msg-avatar">🤖</div>
+              <div class="bubble">สวัสดีครับ ผมหมอนทอง ผู้ช่วย AI ด้านอุปกรณ์ทำสวน ส่งรูปหรือพิมพ์อาการของเครื่องมือ/อุปกรณ์ที่มีปัญหามาได้เลย ผมจะช่วยวิเคราะห์และแนะนำวิธีแก้เบื้องต้นให้ครับ</div>
+            </div>
+          </div>
+          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" hidden>
+          <div class="chat-input-row">
+            <button class="btn btn-ghost" id="uploadPhotoBtn">
+              <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h2l1-1.6h5L15.5 6h2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+              แนบรูปภาพ
+            </button>
+            <input type="text" class="text-input" id="chatText" placeholder="เช่น ปั๊มน้ำสตาร์ทไม่ติด, เครื่องพ่นยาไม่มีแรงดัน...">
+            <button class="btn btn-gold" id="sendChatBtn">ส่งเข้าแชทบอท</button>
+          </div>
+          <p class="hint-text">💡 เคล็ดลับ: ถ่ายให้เห็นจุดที่มีปัญหาชัดเจน เช่น รอยรั่ว รอยสึก หรือชิ้นส่วนที่เสียหาย จะช่วยให้หมอนทองวินิจฉัยแม่นยำขึ้น</p>
+        </div>
+
+        <div class="panel side-panel">
+          <h3 class="panel-title">ประวัติการแจ้งปัญหาล่าสุด</h3>
+          <ul class="mini-list">
+            <li><span class="tag tag-warn">ปั๊มน้ำสตาร์ทไม่ติด</span><span class="mini-date">17 ก.ค. 2569</span></li>
+            <li><span class="tag tag-ok">เครื่องตัดหญ้าปกติดี</span><span class="mini-date">10 ก.ค. 2569</span></li>
+            <li><span class="tag tag-danger">สายพานเครื่องพ่นยาขาด</span><span class="mini-date">2 ก.ค. 2569</span></li>
+          </ul>
+          <div class="spike-divider small"></div>
+          <h3 class="panel-title">โอกาสพัฒนา</h3>
+          <ul class="opp-list">
+            <li>บีบอัดรูปอัตโนมัติก่อนส่ง แก้ปัญหาเน็ตสวนช้า</li>
+            <li>ปุ่ม "ส่งต่อช่างซ่อมอุปกรณ์การเกษตร" เมื่อบอทไม่มั่นใจ</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: COMMUNITY ================= -->
+    <section class="view" id="view-community">
+      <div class="panel">
+        <div class="search-row">
+          <input type="text" class="text-input" id="communitySearch" placeholder="ค้นหากระทู้ ชื่อยา ปุ๋ย หรือปัญหาที่พบ...">
+          <select class="select-input" id="communityRegion">
+            <option value="all">ทุกภูมิภาค</option>
+            <option value="south">ภาคใต้</option>
+            <option value="east">ภาคตะวันออก</option>
+            <option value="north">ภาคเหนือ</option>
+          </select>
+        </div>
+        <div class="pill-row" id="categoryPills">
+          <button class="pill active" data-cat="all">ทั้งหมด</button>
+          <button class="pill" data-cat="disease">โรคพืช</button>
+          <button class="pill" data-cat="fertilizer">ปุ๋ย/ยา</button>
+          <button class="pill" data-cat="general">ถาม-ตอบทั่วไป</button>
+        </div>
+      </div>
+
+      <div class="feed" id="communityFeed"></div>
+    </section>
+
+    <!-- ================= VIEW 3: SPARE PARTS ================= -->
+    <section class="view" id="view-parts">
+      <div class="panel">
+        <div class="search-row">
+          <input type="text" class="text-input" id="partsSearch" placeholder="พิมพ์ชื่อ/รุ่นเครื่องสูบน้ำหรืออะไหล่ที่เสีย เช่น Honda WB20XH">
+          <button class="btn btn-ghost" id="partsCameraBtn">
+            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h2l1-1.6h5L15.5 6h2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+            ถ่ายรูปอะไหล่เพื่อค้นหา
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">ตารางเทียบอะไหล่ข้ามยี่ห้อ (Cross-reference)</h3>
+        <div class="table-wrap">
+          <table class="data-table" id="partsTable">
+            <thead>
+              <tr><th>รุ่นเครื่องสูบน้ำ</th><th>อะไหล่ที่เสียบ่อย</th><th>รุ่นทดแทนข้ามยี่ห้อ</th><th>ราคาโดยประมาณ</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">ร้านค้าใกล้แปลง</h3>
+        <div class="map-wrap">
+          <div class="map-overlay">
+            <label class="map-search">
+              <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <input type="text" id="shopSearch" placeholder="ค้นหาร้านหรือสินค้า เช่น ซีลปั๊ม, เกษตรพัฒนา...">
+            </label>
+            <div class="map-chips">
+              <button class="map-chip active" data-filter="all" type="button">ทั้งหมด</button>
+              <button class="map-chip" data-filter="near" type="button">📍 ใกล้ฉัน</button>
+              <button class="map-chip" data-filter="stock" type="button">✅ มีสินค้าในสต๊อก</button>
+            </div>
+          </div>
+          <div class="shops-map" id="shopsMap"></div>
+        </div>
+        <div class="map-status" id="shopsMapStatus"></div>
+        <div class="shop-list" id="shopList"></div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 4: DASHBOARD ================= -->
+    <section class="view" id="view-dashboard">
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-value">7</div>
+          <div class="stat-label">ครั้งที่วินิจฉัยเดือนนี้</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">ใบไหม้</div>
+          <div class="stat-label">โรคที่พบบ่อยที่สุด</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">฿4,250</div>
+          <div class="stat-label">ค่าใช้จ่ายสะสมเดือนนี้</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">12 ไร่</div>
+          <div class="stat-label">พื้นที่สวนทั้งหมด</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3 class="panel-title">แนวโน้มโรคที่พบรายเดือน</h3>
+          <canvas id="chartDisease"></canvas>
+        </div>
+        <div class="panel">
+          <h3 class="panel-title">สัดส่วนประเภทโรค</h3>
+          <canvas id="chartPie"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">ประวัติย้อนหลัง</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>วันที่</th><th>รายการ</th><th>การดำเนินการ</th><th>ค่าใช้จ่าย</th></tr></thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 5: SHARE & REVIEW ================= -->
+    <section class="view" id="view-share">
+      <div class="panel">
+        <h3 class="panel-title">สร้างโพสต์ใหม่</h3>
+        <div class="create-post">
+          <select class="select-input" id="postCategory">
+            <option value="update">อัปเดตผลการรักษา</option>
+            <option value="review">รีวิวปุ๋ย/อะไหล่</option>
+            <option value="qa">ตอบคำถามช่วยมือใหม่</option>
+          </select>
+          <textarea class="textarea-input" id="postContent" placeholder="แชร์อาการ วิธีแก้ หรือผลลัพธ์ที่ได้ให้เพื่อนชาวสวนคนอื่นเห็น..."></textarea>
+          <div class="create-post-actions">
+            <button class="btn btn-ghost" id="postImageBtn">📷 แนบรูปก่อน–หลัง</button>
+            <button class="btn btn-gold" id="postSubmitBtn">โพสต์</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="feed" id="shareFeed"></div>
+    </section>
+
+  </main>
+</div>
+  <script src="common.js"></script>
+<script src="app.js?v=8"></script>
+</body>
+</html>
